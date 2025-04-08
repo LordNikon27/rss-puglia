@@ -14,7 +14,8 @@ def fetch_with_retry(url, retries=3, delay=5):
     for attempt in range(retries):
         try:
             print(f"Tentativo {attempt+1} per URL: {url}")
-            return requests.get(url, timeout=10)
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+            return requests.get(url, timeout=10, headers=headers)
         except RequestException as e:
             print(f"Errore: {e}")
             time.sleep(delay)
