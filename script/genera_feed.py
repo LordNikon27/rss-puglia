@@ -10,6 +10,8 @@ sections = {
     "https://www.regione.puglia.it/web/ricerca-e-relazioni-internazionali/elenco-bandi": "[Bando]"
 }
 
+path_to_save_it = ""
+
 def fetch_with_retry(url, retries=3, delay=5):
     for attempt in range(retries):
         try:
@@ -57,4 +59,4 @@ for item in all_items:
     ET.SubElement(i, "pubDate").text = item["date"]
 
 tree = ET.ElementTree(rss)
-tree.write("feed.xml", encoding="utf-8", xml_declaration=True)
+tree.write(f"{path_to_save_it}rss-puglia.xml", encoding="utf-8", xml_declaration=True)
