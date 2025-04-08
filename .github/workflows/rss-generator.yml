@@ -1,0 +1,34 @@
+name: Aggiorna feed RSS Regione Puglia
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # ogni ora
+  workflow_dispatch:      # avvio manuale
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clona il repository
+        uses: actions/checkout@v3
+
+      - name: Imposta Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+
+      - name: Installa le dipendenze
+        run: |
+          pip install -r requirements.txt
+
+      - name: Esegui lo script
+        run: python script/genera_feed.py
+
+      - name: Commit del feed aggiornato
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add feed.xml
+          git commit -m "Aggiorna feed RSS" || echo "Nessuna modifica"
+          git push
