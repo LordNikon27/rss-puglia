@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
+import time
+from requests.exceptions import RequestException
 
 sections = {
     "https://www.regione.puglia.it/web/ricerca-e-relazioni-internazionali/agenda-eventi": "[Evento]",
@@ -8,9 +10,19 @@ sections = {
     "https://www.regione.puglia.it/web/ricerca-e-relazioni-internazionali/elenco-bandi": "[Bando]"
 }
 
+def fetch_with_retry(url, retries=3, delay=5):
+    for attempt in range(retries):
+        try:
+            print(f"Tentativo {attempt+1} per URL: {url}")
+            return requests.get(url, timeout=10)
+        except RequestException as e:
+            print(f"Errore: {e}")
+            time.sleep(delay)
+    raise Exception(f"Impossibile connettersi a {url} dopo {retries} tentativi.")
+
 def extract_items(url, label):
     items = []
-    resp = requests.get(url)
+    resp = fetch_with_retry(url)
     soup = BeautifulSoup(resp.content, "html.parser")
     articles = soup.select("div.card-agenda-one")[:5]
     for a in articles:
@@ -31,7 +43,6 @@ for url, label in sections.items():
 
 all_items = sorted(all_items, key=lambda x: x["date"])
 
-# Creazione del feed RSS
 rss = ET.Element("rss", version="2.0")
 channel = ET.SubElement(rss, "channel")
 ET.SubElement(channel, "title").text = "Regione Puglia - Feed Unificato"
